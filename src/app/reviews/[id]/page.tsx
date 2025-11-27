@@ -26,15 +26,16 @@ const ContentIcon = ({ type }: { type: ContentType }) => {
   }
 };
 
-export default async function ReviewDetailPage({ params }: { params: { id: string } }) {
-  const review = await getReviewById(params.id);
+export default async function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const review = await getReviewById(id);
 
   if (!review) {
     notFound();
   }
 
   // Fetch all content blocks from the Notion page
-  const blocks = await getPageBlocks(params.id);
+  const blocks = await getPageBlocks(id);
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">

@@ -7,15 +7,16 @@ import NotionBlockRenderer from '@/components/NotionBlockRenderer';
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
 
-export default async function KnowledgeDetailPage({ params }: { params: { id: string } }) {
-  const term = await getTermById(params.id);
+export default async function KnowledgeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const term = await getTermById(id);
 
   if (!term) {
     notFound();
   }
 
   // Fetch all content blocks from the Notion page
-  const blocks = await getPageBlocks(params.id);
+  const blocks = await getPageBlocks(id);
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
