@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ExternalLink, PlayCircle, Mic, Book, Library } from 'lucide-react';
 import { ContentType } from '@/types';
 import { notFound } from 'next/navigation';
+import ReviewCoverImage from './ReviewDetailClient';
 
 export const revalidate = 60;
 
@@ -43,15 +44,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         {/* Cover Image */}
         <div className="h-64 md:h-96 overflow-hidden relative">
-          <img
-            src={review.coverImage || 'https://via.placeholder.com/800x400'}
-            alt={review.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'https://via.placeholder.com/800x400?text=' + encodeURIComponent(review.title.substring(0, 30));
-            }}
-          />
+          <ReviewCoverImage review={review} />
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg text-sm font-bold text-gray-700 uppercase flex items-center gap-2">
             <ContentIcon type={review.type} />
             {review.type}
