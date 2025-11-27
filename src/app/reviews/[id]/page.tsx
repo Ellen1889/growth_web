@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import ReviewCoverImage from './ReviewDetailClient';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 const RatingStars = ({ rating }: { rating: number }) => (
   <div className="flex text-yellow-400 text-lg">

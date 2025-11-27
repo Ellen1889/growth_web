@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function KnowledgeDetailPage({ params }: { params: { id: string } }) {
   const term = await getTermById(params.id);
