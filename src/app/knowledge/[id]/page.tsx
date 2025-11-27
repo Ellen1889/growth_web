@@ -36,10 +36,50 @@ export default async function KnowledgeDetailPage({ params }: { params: Promise<
           <p className="text-xl text-gray-600 leading-relaxed font-light">{term.definition}</p>
         </div>
         <div className="p-8 md:p-12">
-          {/* Render all Notion page content */}
-          {blocks.length > 0 ? (
-            <NotionBlockRenderer blocks={blocks} />
-          ) : (
+          {term.formula && (
+            <div className="mb-8">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Formula</h3>
+              <div className="bg-slate-900 text-slate-50 p-6 rounded-xl font-mono text-lg text-center shadow-inner">
+                {term.formula}
+              </div>
+            </div>
+          )}
+
+          {term.longDescription && (
+            <div className="mb-8">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Deep Dive</h3>
+              <div className="prose prose-slate max-w-none">
+                <p className="text-gray-700 leading-8 whitespace-pre-line">{term.longDescription}</p>
+              </div>
+            </div>
+          )}
+
+          {term.images && term.images.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Visual Examples</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {term.images.map((imageUrl, index) => (
+                  <div key={index} className="rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={imageUrl}
+                      alt={`${term.term} - Image ${index + 1}`}
+                      className="w-full h-auto object-contain bg-gray-50"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Render all Notion page content blocks */}
+          {blocks.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Additional Content</h3>
+              <NotionBlockRenderer blocks={blocks} />
+            </div>
+          )}
+
+          {!term.formula && !term.longDescription && !term.images?.length && blocks.length === 0 && (
             <p className="text-gray-500 italic">No additional content available.</p>
           )}
         </div>

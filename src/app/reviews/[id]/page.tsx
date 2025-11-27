@@ -92,14 +92,27 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
             </div>
           )}
 
-          {/* Render all Notion page content */}
-          <div className="mb-8">
-            {blocks.length > 0 ? (
+          {/* Show takeaways from properties if available */}
+          {review.takeaways && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Key Takeaways</h2>
+              <div className="prose prose-slate max-w-none">
+                <p className="text-gray-700 leading-8 whitespace-pre-line">{review.takeaways}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Render all Notion page content blocks */}
+          {blocks.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Full Review</h2>
               <NotionBlockRenderer blocks={blocks} />
-            ) : (
-              <p className="text-gray-500 italic">No additional content available.</p>
-            )}
-          </div>
+            </div>
+          )}
+
+          {!review.takeaways && blocks.length === 0 && (
+            <p className="text-gray-500 italic">No additional content available.</p>
+          )}
 
           {review.url && (
             <a
