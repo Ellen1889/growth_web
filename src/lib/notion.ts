@@ -10,6 +10,34 @@ const getRichText = (richText: any[]) => {
   return richText?.map((t: any) => t.plain_text).join('') || '';
 };
 
+// Helper to fetch all blocks (content) from a Notion page
+export const getPageBlocks = async (pageId: string): Promise<any[]> => {
+  try {
+    const blocks = [];
+    let cursor;
+
+    while (true) {
+      const response: any = await notion.blocks.children.list({
+        block_id: pageId,
+        start_cursor: cursor,
+      });
+
+      blocks.push(...response.results);
+
+      if (!response.has_more) {
+        break;
+      }
+
+      cursor = response.next_cursor;
+    }
+
+    return blocks;
+  } catch (error) {
+    console.error('Error fetching page blocks:', error);
+    return [];
+  }
+};
+
 // --- EXPERIMENTS ---
 export const getExperiments = async (): Promise<Experiment[]> => {
   try {

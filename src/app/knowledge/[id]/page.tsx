@@ -1,7 +1,8 @@
-import { getTermById } from '@/lib/notion';
+import { getTermById, getPageBlocks } from '@/lib/notion';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import NotionBlockRenderer from '@/components/NotionBlockRenderer';
 
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
@@ -13,8 +14,11 @@ export default async function KnowledgeDetailPage({ params }: { params: { id: st
     notFound();
   }
 
+  // Fetch all content blocks from the Notion page
+  const blocks = await getPageBlocks(params.id);
+
   return (
-    <div className="animate-fade-in max-w-3xl mx-auto">
+    <div className="animate-fade-in max-w-4xl mx-auto">
       <Link
         href="/knowledge"
         className="group flex items-center gap-2 text-sm text-gray-500 hover:text-green-600 mb-6 transition-colors"
@@ -30,38 +34,12 @@ export default async function KnowledgeDetailPage({ params }: { params: { id: st
           <h1 className="text-4xl font-display font-bold text-gray-900 mb-4">{term.term}</h1>
           <p className="text-xl text-gray-600 leading-relaxed font-light">{term.definition}</p>
         </div>
-        <div className="p-8 space-y-8">
-          {term.formula && (
-            <div>
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Formula</h3>
-              <div className="bg-slate-900 text-slate-50 p-6 rounded-xl font-mono text-lg text-center shadow-inner">
-                {term.formula}
-              </div>
-            </div>
-          )}
-          {term.longDescription && (
-            <div>
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Deep Dive</h3>
-              <div className="prose prose-slate max-w-none">
-                <p className="text-gray-700 leading-8 whitespace-pre-line">{term.longDescription}</p>
-              </div>
-            </div>
-          )}
-          {term.images && term.images.length > 0 && (
-            <div>
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Visual Examples</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {term.images.map((imageUrl, index) => (
-                  <div key={index} className="rounded-lg overflow-hidden border border-gray-200">
-                    <img
-                      src={imageUrl}
-                      alt={`${term.term} - Image ${index + 1}`}
-                      className="w-full h-auto object-contain bg-gray-50"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="p-8 md:p-12">
+          {/* Render all Notion page content */}
+          {blocks.length > 0 ? (
+            <NotionBlockRenderer blocks={blocks} />
+          ) : (
+            <p className="text-gray-500 italic">No additional content available.</p>
           )}
         </div>
       </div>

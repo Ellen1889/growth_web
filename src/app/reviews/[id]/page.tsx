@@ -1,9 +1,10 @@
-import { getReviewById } from '@/lib/notion';
+import { getReviewById, getPageBlocks } from '@/lib/notion';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, PlayCircle, Mic, Book, Library } from 'lucide-react';
 import { ContentType } from '@/types';
 import { notFound } from 'next/navigation';
 import ReviewCoverImage from './ReviewDetailClient';
+import NotionBlockRenderer from '@/components/NotionBlockRenderer';
 
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
@@ -31,6 +32,9 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
   if (!review) {
     notFound();
   }
+
+  // Fetch all content blocks from the Notion page
+  const blocks = await getPageBlocks(params.id);
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
@@ -87,14 +91,14 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
             </div>
           )}
 
-          {review.takeaways && (
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Key Takeaways</h2>
-              <div className="prose prose-slate max-w-none">
-                <p className="text-gray-700 leading-8 whitespace-pre-line">{review.takeaways}</p>
-              </div>
-            </div>
-          )}
+          {/* Render all Notion page content */}
+          <div className="mb-8">
+            {blocks.length > 0 ? (
+              <NotionBlockRenderer blocks={blocks} />
+            ) : (
+              <p className="text-gray-500 italic">No additional content available.</p>
+            )}
+          </div>
 
           {review.url && (
             <a
