@@ -48,18 +48,43 @@ export const getReviews = async (): Promise<Review[]> => {
     return {
       id: page.id,
       title: props.Title.title[0]?.plain_text || 'Untitled',
-      author: getRichText(props.Author.rich_text),
+      contributor: getRichText(props.Contributor?.rich_text) || getRichText(props.Author?.rich_text) || '',
       rating: props.Rating.number || 0,
-      takeaways: props.Takeaways.multi_select.map((t: any) => t.name),
+      takeaways: getRichText(props.Takeaways?.rich_text) || '',
       type: props.Type.select?.name as ContentType || 'Article',
-      tags: props.Tags.multi_select.map((t: any) => t.name),
+      tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
       url: props.URL.url || '#',
       coverImage: props['Cover Image']?.files[0]?.file?.url || props['Cover Image']?.files[0]?.external?.url || '',
+      datePublished: props['Date Published']?.date?.start || '',
     };
   });
   } catch (error) {
     console.error('Error fetching reviews:', error);
     return [];
+  }
+};
+
+// Get single review by ID
+export const getReviewById = async (id: string): Promise<Review | null> => {
+  try {
+    const page = await notion.pages.retrieve({ page_id: id });
+    const props = (page as any).properties;
+
+    return {
+      id: page.id,
+      title: props.Title.title[0]?.plain_text || 'Untitled',
+      contributor: getRichText(props.Contributor?.rich_text) || getRichText(props.Author?.rich_text) || '',
+      rating: props.Rating.number || 0,
+      takeaways: getRichText(props.Takeaways?.rich_text) || '',
+      type: props.Type.select?.name as ContentType || 'Article',
+      tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
+      url: props.URL.url || '#',
+      coverImage: props['Cover Image']?.files[0]?.file?.url || props['Cover Image']?.files[0]?.external?.url || '',
+      datePublished: props['Date Published']?.date?.start || '',
+    };
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    return null;
   }
 };
 
@@ -98,6 +123,10 @@ export const getTerms = async (): Promise<Term[]> => {
 
   return response.results.map((page: any) => {
     const props = page.properties;
+    const images = props.Images?.files?.map((file: any) =>
+      file.file?.url || file.external?.url
+    ).filter(Boolean) || [];
+
     return {
       id: page.id,
       term: props.Term?.title[0]?.plain_text || 'Untitled',
@@ -105,11 +134,36 @@ export const getTerms = async (): Promise<Term[]> => {
       category: props.Category?.select?.name || 'General',
       formula: getRichText(props.Formula?.rich_text),
       longDescription: getRichText(props['Long Description']?.rich_text),
+      images: images,
     };
   });
   } catch (error) {
     console.error('Error fetching terms:', error);
     return [];
+  }
+};
+
+// Get single term by ID
+export const getTermById = async (id: string): Promise<Term | null> => {
+  try {
+    const page = await notion.pages.retrieve({ page_id: id });
+    const props = (page as any).properties;
+    const images = props.Images?.files?.map((file: any) =>
+      file.file?.url || file.external?.url
+    ).filter(Boolean) || [];
+
+    return {
+      id: page.id,
+      term: props.Term?.title[0]?.plain_text || 'Untitled',
+      definition: getRichText(props.Definition?.rich_text),
+      category: props.Category?.select?.name || 'General',
+      formula: getRichText(props.Formula?.rich_text),
+      longDescription: getRichText(props['Long Description']?.rich_text),
+      images: images,
+    };
+  } catch (error) {
+    console.error('Error fetching term:', error);
+    return null;
   }
 };
 

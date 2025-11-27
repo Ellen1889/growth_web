@@ -8,13 +8,14 @@ export enum ContentType {
 export interface Review {
   id: string;
   title: string;
-  author: string;
+  contributor: string;
   rating: number;
-  takeaways: string[];
+  takeaways: string;
   type: ContentType;
   tags: string[];
   url: string;
   coverImage: string;
+  datePublished: string;
 }
 
 export interface Experiment {
@@ -46,6 +47,7 @@ export interface Term {
   category: string;
   formula?: string;
   longDescription?: string;
+  images?: string[];
 }
 
 export interface Tool {

@@ -173,7 +173,7 @@ const DashboardClient: React.FC<DashboardProps> = ({
                    <img src={review.coverImage || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded object-cover bg-gray-100" alt="" />
                    <div>
                       <p className="text-sm font-medium text-gray-800 line-clamp-1">{review.title}</p>
-                      <p className="text-xs text-gray-500">{review.author}</p>
+                      <p className="text-xs text-gray-500">{review.contributor}</p>
                    </div>
                  </div>
                  <RatingStars rating={review.rating} />
@@ -294,19 +294,12 @@ const DashboardClient: React.FC<DashboardProps> = ({
                   <div className="p-6 flex flex-col flex-1">
                     <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-green-700 transition-colors mb-1">{review.title}</h3>
                     <div className="flex justify-between items-center mb-4">
-                      <p className="text-sm text-gray-500">by {review.author}</p>
+                      <p className="text-sm text-gray-500">by {review.contributor}</p>
                       <RatingStars rating={review.rating} />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-bold text-gray-400 uppercase mb-2">Key Takeaways</p>
-                      <ul className="space-y-1">
-                        {review.takeaways.map((t, i) => (
-                          <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                            <span className="text-green-400 mt-1">•</span>
-                            <span>{t}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <p className="text-sm text-gray-600 line-clamp-3">{review.takeaways}</p>
                     </div>
                   </div>
                 </a>
