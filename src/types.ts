@@ -48,6 +48,9 @@ export interface Term {
   formula?: string;
   longDescription?: string;
   images?: string[];
+  tags?: string[];
+  publishedDate?: string;
+  adoptionPriority?: number;
 }
 
 export interface Tool {
@@ -58,4 +61,13 @@ export interface Tool {
   url: string;
   iconUrl: string;
   price: 'Free' | 'Freemium' | 'Paid';
+  tags?: string[];
+  rating?: number;
+}
+
+export interface Prompt {
+  id: string;
+  title: string;
+  category: string;
+  tags: string[];
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, BookOpen, FlaskConical, Library, Menu, X, Github, Linkedin, Twitter,
-  GraduationCap, Package
+  GraduationCap, Package, Lightbulb
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -88,6 +88,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             isActive={pathname?.startsWith('/tools') || false}
             href="/tools"
           />
+          <SidebarItem
+            icon={<Lightbulb size={20} />}
+            label="Prompt Library"
+            isActive={pathname?.startsWith('/prompts') || false}
+            href="/prompts"
+          />
         </nav>
       </aside>
 
@@ -147,6 +153,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
               label="Tools & Stack"
               isActive={pathname?.startsWith('/tools') || false}
               href="/tools"
+              onClick={closeMobileMenu}
+            />
+            <SidebarItem
+              icon={<Lightbulb size={20} />}
+              label="Prompt Library"
+              isActive={pathname?.startsWith('/prompts') || false}
+              href="/prompts"
               onClick={closeMobileMenu}
             />
           </nav>
