@@ -11,7 +11,10 @@ export default async function Home() {
     getNewsletter(),
   ]);
 
-  const runningExperiments = experiments.filter(e => e.status === 'Running');
+  // Show latest experiments (sorted by published date)
+  const latestExperiments = experiments.sort((a, b) => {
+    return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
+  });
 
-  return <DashboardContent runningExperiments={runningExperiments} reviews={reviews} newsletter={newsletter} />;
+  return <DashboardContent runningExperiments={latestExperiments} reviews={reviews} newsletter={newsletter} />;
 }

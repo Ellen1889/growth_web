@@ -36,24 +36,24 @@ export default function DashboardContent({
         </div>
 
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="font-display font-bold text-lg text-gray-900 mb-4">Current Experiment</h3>
+          <h3 className="font-display font-bold text-lg text-gray-900 mb-4">Latest Experiment</h3>
           {runningExperiments.length > 0 ? (
             runningExperiments.slice(0, 1).map(e => (
               <div key={e.id}>
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-medium text-gray-800 line-clamp-1">{e.title}</span>
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-blue-50 text-blue-700 border-blue-100">
-                    {e.status}
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border bg-green-50 text-green-700 border-green-100">
+                    {e.category}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mb-3 line-clamp-2">{e.hypothesis}</p>
+                <p className="text-sm text-gray-500 mb-3 line-clamp-2">{e.resultSummary}</p>
                 <Link href="/experiments" className="text-sm text-green-600 font-medium hover:text-green-700 flex items-center gap-1">
                   View Details <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
             ))
           ) : (
-            <div className="text-sm text-gray-500 italic">No active experiments running.</div>
+            <div className="text-sm text-gray-500 italic">No experiments yet.</div>
           )}
         </div>
       </div>
