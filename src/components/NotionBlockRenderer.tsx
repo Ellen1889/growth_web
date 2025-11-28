@@ -4,38 +4,95 @@ interface NotionBlockRendererProps {
   blocks: any[];
 }
 
+// Helper function to group consecutive list items
+const groupListItems = (blocks: any[]) => {
+  const grouped: any[] = [];
+  let currentList: any = null;
+
+  blocks.forEach((block) => {
+    if (block.type === 'bulleted_list_item') {
+      if (!currentList || currentList.type !== 'bulleted') {
+        currentList = { type: 'bulleted', items: [block] };
+        grouped.push(currentList);
+      } else {
+        currentList.items.push(block);
+      }
+    } else if (block.type === 'numbered_list_item') {
+      if (!currentList || currentList.type !== 'numbered') {
+        currentList = { type: 'numbered', items: [block] };
+        grouped.push(currentList);
+      } else {
+        currentList.items.push(block);
+      }
+    } else {
+      currentList = null;
+      grouped.push(block);
+    }
+  });
+
+  return grouped;
+};
+
 export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps) {
   const renderRichText = (richTextArray: any[]) => {
     if (!richTextArray) return null;
 
     return richTextArray.map((text, i) => {
       let content = text.plain_text;
+      const annotations = text.annotations;
+
+      // Color class mappings
+      const colorClasses: Record<string, string> = {
+        gray: 'text-gray-600',
+        brown: 'text-amber-700',
+        orange: 'text-orange-600',
+        yellow: 'text-yellow-600',
+        green: 'text-green-600',
+        blue: 'text-blue-600',
+        purple: 'text-purple-600',
+        pink: 'text-pink-600',
+        red: 'text-red-600',
+      };
+
+      const bgColorClasses: Record<string, string> = {
+        gray_background: 'bg-gray-100 px-1 rounded',
+        brown_background: 'bg-amber-100 px-1 rounded',
+        orange_background: 'bg-orange-100 px-1 rounded',
+        yellow_background: 'bg-yellow-100 px-1 rounded',
+        green_background: 'bg-green-100 px-1 rounded',
+        blue_background: 'bg-blue-100 px-1 rounded',
+        purple_background: 'bg-purple-100 px-1 rounded',
+        pink_background: 'bg-pink-100 px-1 rounded',
+        red_background: 'bg-red-100 px-1 rounded',
+      };
+
+      let className = '';
+      if (annotations.color && annotations.color !== 'default') {
+        if (annotations.color.endsWith('_background')) {
+          className = bgColorClasses[annotations.color] || '';
+        } else {
+          className = colorClasses[annotations.color] || '';
+        }
+      }
 
       if (text.href) {
         return (
-          <a key={i} href={text.href} className="text-green-600 hover:underline" target="_blank" rel="noopener noreferrer">
+          <a key={i} href={text.href} className={`text-green-600 hover:underline ${className}`} target="_blank" rel="noopener noreferrer">
             {content}
           </a>
         );
       }
 
-      let element = <span key={i}>{content}</span>;
+      if (annotations.code) {
+        return <code key={i} className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono">{content}</code>;
+      }
 
-      if (text.annotations.bold) {
-        element = <strong key={i}>{content}</strong>;
-      }
-      if (text.annotations.italic) {
-        element = <em key={i}>{content}</em>;
-      }
-      if (text.annotations.code) {
-        element = <code key={i} className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono">{content}</code>;
-      }
-      if (text.annotations.strikethrough) {
-        element = <del key={i}>{content}</del>;
-      }
-      if (text.annotations.underline) {
-        element = <u key={i}>{content}</u>;
-      }
+      let element: React.ReactNode = <span key={i} className={className}>{content}</span>;
+
+      if (annotations.bold) element = <strong>{element}</strong>;
+      if (annotations.italic) element = <em>{element}</em>;
+      if (annotations.strikethrough) element = <del>{element}</del>;
+      if (annotations.underline) element = <u>{element}</u>;
 
       return element;
     });
@@ -75,14 +132,14 @@ export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps
 
       case 'bulleted_list_item':
         return (
-          <li key={id} className="ml-6 mb-2 text-gray-700 list-disc">
+          <li key={id} className="mb-2 text-gray-700">
             {renderRichText(block.bulleted_list_item.rich_text)}
           </li>
         );
 
       case 'numbered_list_item':
         return (
-          <li key={id} className="ml-6 mb-2 text-gray-700 list-decimal">
+          <li key={id} className="mb-2 text-gray-700">
             {renderRichText(block.numbered_list_item.rich_text)}
           </li>
         );
@@ -104,10 +161,15 @@ export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps
 
       case 'toggle':
         return (
-          <details key={id} className="mb-4">
-            <summary className="cursor-pointer font-medium text-gray-900 mb-2">
+          <details key={id} className="mb-4 border border-gray-200 rounded-lg">
+            <summary className="cursor-pointer font-medium text-gray-900 p-4 hover:bg-gray-50">
               {renderRichText(block.toggle.rich_text)}
             </summary>
+            {block.children && block.children.length > 0 && (
+              <div className="p-4 pt-0 border-t border-gray-100">
+                <NotionBlockRenderer blocks={block.children} />
+              </div>
+            )}
           </details>
         );
 
@@ -128,11 +190,29 @@ export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps
         );
 
       case 'callout':
+        const calloutColors: Record<string, string> = {
+          gray: 'bg-gray-50 border-gray-500',
+          brown: 'bg-amber-50 border-amber-500',
+          orange: 'bg-orange-50 border-orange-500',
+          yellow: 'bg-yellow-50 border-yellow-500',
+          green: 'bg-green-50 border-green-500',
+          blue: 'bg-blue-50 border-blue-500',
+          purple: 'bg-purple-50 border-purple-500',
+          pink: 'bg-pink-50 border-pink-500',
+          red: 'bg-red-50 border-red-500',
+        };
+
+        const color = block.callout.color?.replace('_background', '') || 'blue';
+        const colorClass = calloutColors[color] || calloutColors.blue;
+
         return (
-          <div key={id} className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded">
+          <div
+            key={id}
+            className={`${colorClass} border-l-4 p-4 mb-4 rounded`}
+          >
             <div className="flex items-start gap-3">
               {block.callout.icon && (
-                <span className="text-2xl">{block.callout.icon.emoji}</span>
+                <span className="text-2xl flex-shrink-0">{block.callout.icon.emoji}</span>
               )}
               <div className="flex-1 text-gray-700">
                 {renderRichText(block.callout.rich_text)}
@@ -140,6 +220,39 @@ export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps
             </div>
           </div>
         );
+
+      case 'table':
+        return (
+          <div key={id} className="overflow-x-auto my-6">
+            <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+              <tbody className="divide-y divide-gray-200">
+                {block.children?.map((row: any, rowIdx: number) => (
+                  <tr key={row.id} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    {row.table_row?.cells?.map((cell: any[], cellIdx: number) => {
+                      const isHeader = block.table.has_row_header && rowIdx === 0;
+                      const Tag = isHeader ? 'th' : 'td';
+                      return (
+                        <Tag
+                          key={cellIdx}
+                          className={`px-4 py-3 text-sm ${
+                            isHeader
+                              ? 'font-bold bg-gray-100 text-gray-900'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          {renderRichText(cell)}
+                        </Tag>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      case 'table_row':
+        return null; // Handled by parent table
 
       case 'image':
         const imageUrl = block.image.type === 'external'
@@ -220,9 +333,27 @@ export default function NotionBlockRenderer({ blocks }: NotionBlockRendererProps
     }
   };
 
+  const groupedBlocks = groupListItems(blocks);
+
   return (
     <div className="prose prose-slate max-w-none">
-      {blocks.map((block) => renderBlock(block))}
+      {groupedBlocks.map((item, idx) => {
+        if (item.type === 'bulleted') {
+          return (
+            <ul key={`list-${idx}`} className="space-y-1 mb-4 ml-6 list-disc">
+              {item.items.map((block: any) => renderBlock(block))}
+            </ul>
+          );
+        }
+        if (item.type === 'numbered') {
+          return (
+            <ol key={`list-${idx}`} className="space-y-1 mb-4 ml-6 list-decimal">
+              {item.items.map((block: any) => renderBlock(block))}
+            </ol>
+          );
+        }
+        return renderBlock(item);
+      })}
     </div>
   );
 }

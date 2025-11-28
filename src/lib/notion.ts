@@ -10,8 +10,11 @@ const getRichText = (richText: any[]) => {
   return richText?.map((t: any) => t.plain_text).join('') || '';
 };
 
-// Helper to fetch all blocks (content) from a Notion page
-export const getPageBlocks = async (pageId: string): Promise<any[]> => {
+// Helper to fetch all blocks (content) from a Notion page with optional recursion
+export const getPageBlocks = async (
+  pageId: string,
+  recursive: boolean = true  // Default to true for better UX
+): Promise<any[]> => {
   try {
     const blocks = [];
     let cursor;
@@ -29,6 +32,15 @@ export const getPageBlocks = async (pageId: string): Promise<any[]> => {
       }
 
       cursor = response.next_cursor;
+    }
+
+    // Recursively fetch children for blocks that have them
+    if (recursive) {
+      for (let i = 0; i < blocks.length; i++) {
+        if (blocks[i].has_children) {
+          blocks[i].children = await getPageBlocks(blocks[i].id, true);
+        }
+      }
     }
 
     return blocks;
@@ -61,6 +73,28 @@ export const getExperiments = async (): Promise<Experiment[]> => {
   } catch (error) {
     console.error('Error fetching experiments:', error);
     return [];
+  }
+};
+
+// Get single experiment by ID
+export const getExperimentById = async (id: string): Promise<Experiment | null> => {
+  try {
+    const page = await notion.pages.retrieve({ page_id: id });
+    const props = (page as any).properties;
+
+    return {
+      id: page.id,
+      title: props.Name.title[0]?.plain_text || 'Untitled',
+      problem: getRichText(props.Problem.rich_text),
+      hypothesis: getRichText(props.Hypothesis.rich_text),
+      status: props.Status.select?.name || 'Inconclusive',
+      metric: getRichText(props.Metric.rich_text),
+      resultSummary: getRichText(props['Result Summary'].rich_text),
+      date: props.Date?.date?.start || '',
+    };
+  } catch (error) {
+    console.error('Error fetching experiment:', error);
+    return null;
   }
 };
 
