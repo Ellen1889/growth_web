@@ -61,13 +61,12 @@ export const getExperiments = async (): Promise<Experiment[]> => {
     const props = page.properties;
     return {
       id: page.id,
-      title: props.Name.title[0]?.plain_text || 'Untitled',
-      problem: getRichText(props.Problem.rich_text),
-      hypothesis: getRichText(props.Hypothesis.rich_text),
-      status: props.Status.select?.name || 'Inconclusive',
-      metric: getRichText(props.Metric.rich_text),
-      resultSummary: getRichText(props['Result Summary'].rich_text),
-      date: props.Date?.date?.start || '',
+      title: props.Title?.title[0]?.plain_text || 'Untitled',
+      category: props.Category?.select?.name || 'General',
+      tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
+      resultSummary: getRichText(props['Result Summary']?.rich_text) || '',
+      publishedDate: props['Published Date']?.date?.start || '',
+      adoptionPriority: props['Adoption Priority']?.number || 0,
     };
   });
   } catch (error) {
@@ -84,13 +83,12 @@ export const getExperimentById = async (id: string): Promise<Experiment | null> 
 
     return {
       id: page.id,
-      title: props.Name.title[0]?.plain_text || 'Untitled',
-      problem: getRichText(props.Problem.rich_text),
-      hypothesis: getRichText(props.Hypothesis.rich_text),
-      status: props.Status.select?.name || 'Inconclusive',
-      metric: getRichText(props.Metric.rich_text),
-      resultSummary: getRichText(props['Result Summary'].rich_text),
-      date: props.Date?.date?.start || '',
+      title: props.Title?.title[0]?.plain_text || 'Untitled',
+      category: props.Category?.select?.name || 'General',
+      tags: props.Tags?.multi_select?.map((t: any) => t.name) || [],
+      resultSummary: getRichText(props['Result Summary']?.rich_text) || '',
+      publishedDate: props['Published Date']?.date?.start || '',
+      adoptionPriority: props['Adoption Priority']?.number || 0,
     };
   } catch (error) {
     console.error('Error fetching experiment:', error);

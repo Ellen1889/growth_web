@@ -21,12 +21,11 @@ export interface Review {
 export interface Experiment {
   id: string;
   title: string;
-  problem: string;
-  hypothesis: string;
-  status: 'Running' | 'Success' | 'Failed' | 'Inconclusive';
-  metric: string;
-  resultSummary?: string;
-  date: string;
+  category: string;
+  tags: string[];
+  resultSummary: string;
+  publishedDate: string;
+  adoptionPriority: number;
 }
 
 export interface Reflection {
